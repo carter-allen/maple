@@ -18,6 +18,10 @@ devtools::install_github("carter-allen/spruce")
 
 `maple` also depends heavily on `Seurat` for data pre-processing and visualization.
 
+# Vignettes
+
+- [Multi-Sample Anterior Mouse Brain](https://carter-allen.github.io/stxBrain_multi_maple.html)
+
 # Usage
 
 Below are command lines for analysis of a 2-sample anterior mouse brain data set sequenced with the 10X Visium platform.
