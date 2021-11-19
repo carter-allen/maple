@@ -21,6 +21,7 @@ devtools::install_github("carter-allen/spruce")
 # Vignettes
 
 - [Multi-Sample Anterior Mouse Brain](https://carter-allen.github.io/stxBrain_multi_maple.html)
+- [Multi-Sample Posterior Mouse Brain](https://carter-allen.github.io/stxBrain_posterior_maple.html)
 
 # Usage
 
