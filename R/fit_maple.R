@@ -106,7 +106,7 @@ fit_maple <- function(seurat_obj,
     if(all(covars %in% colnames(meta)))
     {
       Intercept <- 1
-      W <- as.matrix(cbind(Intercept,dbarts::makeModelMatrixFromDataFrame(meta[,covars])))
+      W <- as.matrix(cbind(Intercept,dbarts::makeModelMatrixFromDataFrame(as.data.frame(meta[,covars]))))
       rownames(W) <- rownames(meta)
     }
     else
