@@ -22,6 +22,7 @@ devtools::install_github("carter-allen/spruce")
 
 - [Multi-Sample Anterior Mouse Brain](https://carter-allen.github.io/stxBrain_multi_maple.html)
 - [Multi-Sample Posterior Mouse Brain](https://carter-allen.github.io/stxBrain_posterior_maple.html)
+- [Multi-Sample Anterior & Posterior Mouse Brain](https://carter-allen.github.io/stxBrain_all_maple.html)
 
 # Usage
 
