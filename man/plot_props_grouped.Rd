@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_props_grouped.R
 \name{plot_props_grouped}
 \alias{plot_props_grouped}
-\title{Plot grouped bar charts of mixture component proportions}
+\title{Plot grouped bar charts of cell type proportions}
 \usage{
 plot_props_grouped(fit, group)
 }

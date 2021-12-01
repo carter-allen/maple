@@ -1,4 +1,4 @@
-#' Plot grouped bar charts of mixture component proportions
+#' Plot grouped bar charts of cell type proportions
 #'
 #' This function allows you to visualize the relative abundance of sub-populations after running fit_maple()
 #' @param fit A list returned by fit_maple()

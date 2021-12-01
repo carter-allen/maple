@@ -1,4 +1,4 @@
-#' Plot stacked bar charts of cell types proportions
+#' Plot grouped alluvial plots of cell type proportions
 #'
 #' This function allows you to visualize the relative abundance of sub-populations after running fit_maple()
 #' @param fit A list returned by fit_maple()
@@ -7,10 +7,11 @@
 #' @keywords spatial transcriptomics Bayesian
 #' @import dplyr
 #' @import ggplot2
+#' @import ggalluvial
 #' @export
 #' @return A ggplot object
 #' 
-plot_props_stacked <- function(fit, group)
+plot_props_alluvial <- function(fit,group)
 {
   if(length(group) == 1)
   {
@@ -39,14 +40,17 @@ plot_props_stacked <- function(fit, group)
     mutate(prop = Freq/n_group) %>%
     mutate(z = as.factor(z), group = as.factor(group))
   
-  g <- ggplot(al_df_sum, aes(x = group, y = prop, fill = z)) + 
-    geom_bar(position = "stack", stat = "identity", width = 1, color = "black") + 
+  g = ggplot(al_df_sum, aes(x = group, 
+                            fill = z, 
+                            stratum = z,
+                            alluvium = z, 
+                            y = prop, 
+                            label = z)) + 
+    geom_flow() +
+    geom_stratum() + 
     theme_classic() + 
-    scale_y_continuous(expand = c(0,0)) + 
     scale_x_discrete(expand = c(0,0)) + 
-    xlab("Group") + 
-    ylab("Proportion") + 
-    coord_flip()
+    scale_y_continuous(expand = c(0,0))
   
   return(g)
 }

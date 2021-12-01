@@ -2,7 +2,7 @@
 % Please edit documentation in R/prop_props_pie.R
 \name{plot_props_pie}
 \alias{plot_props_pie}
-\title{Plot grouped pie charts of mixture component proportions}
+\title{Plot grouped pie charts of cell type proportions}
 \usage{
 plot_props_pie(fit, group)
 }
