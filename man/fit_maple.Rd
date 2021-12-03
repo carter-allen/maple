@@ -11,6 +11,9 @@ fit_maple(
   n_dim = 8,
   covars = NULL,
   r = 3,
+  MCAR = TRUE,
+  CAR = TRUE,
+  smooth = TRUE,
   nsim = 2000,
   burn = 1000,
   z_init = NULL
@@ -28,6 +31,12 @@ fit_maple(
 \item{covars}{Column names of Seurat meta data to use as covariates. If none specified, will fit a global intercept and sample-indicator model for cell type membership probabilities.}
 
 \item{r}{Spatial smoothing parameter. Should be greater than 0 with larger values enforcing stronger prior spatial association.}
+
+\item{MCAR}{Logical. Include multivariate CAR random intercepts in gene expression model?}
+
+\item{CAR}{Logical. Include univariate CAR random intercepts in multinomial gene expression model?}
+
+\item{smooth}{Logical. Use manual spatial smoothing controled by r parameter?}
 
 \item{nsim}{Number of total MCMC iterations to conduct.}
 

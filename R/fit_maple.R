@@ -7,15 +7,19 @@
 #' @param n_dim The number of dimensions to use if emb is specified as one of "PCs", "HVGs", or "SVGs". Ignored if emb is a matrix of custom embeddings.
 #' @param covars Column names of Seurat meta data to use as covariates. If none specified, will fit a global intercept and sample-indicator model for cell type membership probabilities.
 #' @param r Spatial smoothing parameter. Should be greater than 0 with larger values enforcing stronger prior spatial association.
+#' @param MCAR Logical. Include multivariate CAR random intercepts in gene expression model?
+#' @param CAR Logical. Include univariate CAR random intercepts in multinomial gene expression model?
+#' @param smooth Logical. Use manual spatial smoothing controled by r parameter?
 #' @param nsim Number of total MCMC iterations to conduct. 
 #' @param burn Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn
 #' @param z_init Initialized cluster allocation vector to aid in MCMC convergence. If NULL z_init will be set using hierarchical clustering. 
 #'
 #' @keywords spatial transcriptomics Bayesian
 #' @import Seurat
-#' @importFrom spruce fit_mvn_PG_smooth
+#' @import spruce
 #' @importFrom dbarts makeModelMatrixFromDataFrame
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix cutree
+#' @importFrom Rclusterpp Rclusterpp.hclust
 #' @export
 #' @return A list of MCMC samples, including the MAP estimate of cluster indicators (z)
 #' 
@@ -25,6 +29,9 @@ fit_maple <- function(seurat_obj,
                       n_dim = 8,
                       covars = NULL,
                       r = 3,
+                      MCAR = TRUE,
+                      CAR = TRUE,
+                      smooth = TRUE,
                       nsim = 2000,
                       burn = 1000,
                       z_init = NULL)
@@ -34,8 +41,8 @@ fit_maple <- function(seurat_obj,
     # check PCs are present
     if(!is.null(seurat_obj@reductions$pca))
     {
-      emb <- seurat_obj@reductions$pca@cell.embeddings[,1:n_dim]
-      rownames(emb) <- rownames(seurat_obj@reductions$pca@cell.embeddings)
+      Y <- seurat_obj@reductions$pca@cell.embeddings[,1:n_dim]
+      rownames(Y) <- rownames(seurat_obj@reductions$pca@cell.embeddings)
     }
     else
     {
@@ -46,16 +53,16 @@ fit_maple <- function(seurat_obj,
   else if(emb == "HVGs")
   {
     hvgs <- VariableFeatures(seurat_obj)[1:n_dim]
-    emb <- t(seurat_obj@assays$SCT@scale.data[hvgs,])
+    Y <- t(seurat_obj@assays$SCT@scale.data[hvgs,])
   }
   else if(emb == "SVGs")
   {
     svgs <- SpatiallyVariableFeatures(seurat_obj)[1:n_dim]
-    emb <- t(seurat_obj@assays$SCT@scale.data[svgs,])
+    Y <- t(seurat_obj@assays$SCT@scale.data[svgs,])
   }
   else if(is.matrix(emb))
   {
-    emb <- emb
+    Y <- emb
   }
   else
   {
@@ -80,17 +87,17 @@ fit_maple <- function(seurat_obj,
   }
   
   # check dimensions match
-  if(nrow(emb) != nrow(coords))
+  if(nrow(Y) != nrow(coords))
   {
     message("Number of rows (cells) of embedding must match that of spatial coordinates")
     return(NULL)
   }
   else
   {
-    # order coords according to rownames of emb
-    coords <- coords[rownames(emb),]
-    N <- nrow(emb)
-    meta <- seurat_obj@meta.data[rownames(emb),]
+    # order coords according to rownames of Y
+    coords <- coords[rownames(Y),]
+    N <- nrow(Y)
+    meta <- seurat_obj@meta.data[rownames(Y),]
   }
   
   # check supplied covariates
@@ -116,13 +123,114 @@ fit_maple <- function(seurat_obj,
     }
   }
   
-  fit <- spruce::fit_mvn_PG_smooth(Y = emb,
-                                   W = W,
-                                   coords_df = coords,
-                                   K = K,
-                                   r = r,
-                                   nsim = nsim, 
-                                   burn = burn)
+  if(is.null(z_init))
+  {
+    print("Initializing with hclust")
+    fit_hclust <- Rclusterpp::Rclusterpp.hclust(Y)
+    z_init <- cutree(fit_hclust,k = K)
+  }
+  
+  # dispatch to spruce functions
+  print("Dispatching to appropriate model fit function")
+  if(emb %in% c("HVGs","SVGs"))
+  {
+    print("Fitting MSN model to account for skewness of HVGs/SVGs")
+    fit <- spruce::fit_msn_PG_smooth(Y = Y,
+                                     W = W,
+                                     coords_df = coords,
+                                     K = K,
+                                     r = r,
+                                     nsim = nsim, 
+                                     burn = burn,
+                                     z_init = z_init)
+  }
+  else
+  {
+    if((MCAR == TRUE) & (CAR == TRUE) & (smooth == TRUE))
+    {
+      fit <- spruce::fit_mvn_PG_CAR_MCAR_smooth(Y = Y,
+                                                W = W,
+                                                coords_df = coords,
+                                                K = K,
+                                                r = r,
+                                                nsim = nsim, 
+                                                burn = burn,
+                                                z_init = z_init)
+    }
+    else if((MCAR == TRUE) & (CAR == TRUE) & (smooth == FALSE))
+    {
+      fit <- spruce::fit_mvn_PG_CAR_MCAR(Y = Y,
+                                         W = W,
+                                         coords_df = coords,
+                                         K = K,
+                                         nsim = nsim, 
+                                         burn = burn,
+                                         z_init = z_init)
+    }
+    else if((MCAR == TRUE) & (CAR == FALSE) & (smooth == TRUE))
+    {
+      fit <- spruce::fit_mvn_PG_MCAR_smooth(Y = Y,
+                                            W = W,
+                                            coords_df = coords,
+                                            K = K,
+                                            r = r,
+                                            nsim = nsim, 
+                                            burn = burn,
+                                            z_init = z_init)
+    }
+    else if((MCAR == TRUE) & (CAR == FALSE) & (smooth == FALSE))
+    {
+      fit <- spruce::fit_mvn_PG_MCAR(Y = Y,
+                                     W = W,
+                                     coords_df = coords,
+                                     K = K,
+                                     nsim = nsim, 
+                                     burn = burn,
+                                     z_init = z_init)
+    }
+    else if((MCAR == FALSE) & (CAR == TRUE) & (smooth == TRUE))
+    {
+      fit <- spruce::fit_mvn_PG_CAR_smooth(Y = Y,
+                                           W = W,
+                                           coords_df = coords,
+                                           K = K,
+                                           r = r,
+                                           nsim = nsim, 
+                                           burn = burn,
+                                           z_init = z_init)
+    }
+    else if((MCAR == FALSE) & (CAR == TRUE) & (smooth == FALSE))
+    {
+      fit <- spruce::fit_mvn_PG_CAR(Y = Y,
+                                    W = W,
+                                    coords_df = coords,
+                                    K = K,
+                                    nsim = nsim, 
+                                    burn = burn,
+                                    z_init = z_init)
+    }
+    else if((MCAR == FALSE) & (CAR == FALSE) & (smooth == TRUE))
+    {
+      fit <- spruce::fit_mvn_PG_smooth(Y = Y,
+                                       W = W,
+                                       coords_df = coords,
+                                       K = K,
+                                       r = r,
+                                       nsim = nsim, 
+                                       burn = burn,
+                                       z_init = z_init)
+    }
+    else
+    {
+      fit <- spruce::fit_mvn_PG(Y = Y,
+                                W = W,
+                                K = K,
+                                nsim = nsim, 
+                                burn = burn,
+                                z_init = z_init)
+    }
+  }
+  
   fit$coords = coords
   return(fit)
 }
