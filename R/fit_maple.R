@@ -78,7 +78,7 @@ fit_maple <- function(seurat_obj,
     coords_y_l <- seurat_obj@images[[l]]@coordinates$row
     if(l > 1)
     {
-      coords_x_l <- coords_x_l + max(seurat_obj@images[[l-1]]@coordinates$col) + 50
+      coords_x_l <- coords_x_l + max(seurat_obj@images[[l-1]]@coordinates$col) + 50*(l-1)
     }
     coords_l <- data.frame(x = coords_x_l,
                            y = coords_y_l)
