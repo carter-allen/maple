@@ -19,7 +19,6 @@
 #' @import spruce
 #' @importFrom dbarts makeModelMatrixFromDataFrame
 #' @importFrom stats model.matrix cutree
-#' @importFrom Rclusterpp Rclusterpp.hclust
 #' @export
 #' @return A list of MCMC samples, including the MAP estimate of cluster indicators (z)
 #' 
@@ -121,13 +120,6 @@ fit_maple <- function(seurat_obj,
       message("All covariate names must be column names of seurat_obj@meta.data")
       return(NULL)
     }
-  }
-  
-  if(is.null(z_init))
-  {
-    print("Initializing with hclust")
-    fit_hclust <- Rclusterpp::Rclusterpp.hclust(Y)
-    z_init <- cutree(fit_hclust,k = K)
   }
   
   # dispatch to spruce functions
