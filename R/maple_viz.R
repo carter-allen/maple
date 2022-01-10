@@ -24,7 +24,7 @@ maple_viz <- function(fit,
   if(!interactive)
   {
     coords_df = as.data.frame(fit$coords)
-    coords_df$Label = as.factor(fit$z)
+    coords_df$Label = factor(fit$z,levels = sort(unique(fit$z)),labels = paste("Sub-Population",sort(unique(fit$z))))
     if(!shade_uncertainty)
     {
       g = ggplot(data = coords_df, aes(x = .data$x, 
@@ -58,7 +58,7 @@ maple_viz <- function(fit,
       server <- function(input, output) {
         output$distPlot <- renderPlotly({
           coords_df = as.data.frame(fit$coords)
-          coords_df$Label = as.factor(fit$z)
+          coords_df$Label = factor(fit$z,levels = sort(unique(fit$z)),labels = paste("Sub-Population",sort(unique(fit$z))))
           if(!shade_uncertainty)
           {
             ggplot(data = coords_df, aes(x = .data$x, 
