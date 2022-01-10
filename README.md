@@ -1,4 +1,4 @@
-# maple <img src="inst/logo/maple.png" align="right" width="150"/>
+# maple <img src="https://carter-allen.github.io/maple.png" align="right" width="150"/>
 
 ## Bayesian spatial finite mixture models for identification of cell sub-populations in multi-sample spatial transcriptomics experiments
 
