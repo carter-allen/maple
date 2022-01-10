@@ -16,6 +16,6 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Imports: spruce, Seurat, stats, dbarts, ggplot2, dplyr, ggalluvial, plotly, shiny
+Imports: spruce, Seurat, stats, dbarts, ggplot2, dplyr, ggalluvial, plotly, shiny, rlang
 Depends: 
     R (>= 4.0.0)

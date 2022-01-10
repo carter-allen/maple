@@ -7,6 +7,7 @@
 #' @keywords spatial transcriptomics Bayesian
 #' @import dplyr
 #' @import ggplot2
+#' @importFrom rlang .data
 #' @export
 #' @return A ggplot object
 #' 
@@ -28,18 +29,18 @@ plot_props_pie <- function(fit, group)
   }
   
   al_df_sum = al_df %>%
-    group_by(z,group) %>%
+    group_by(.data$z,.data$group) %>%
     summarize(Freq = n())
   
   al_df_group = al_df %>%
-    group_by(group) %>%
+    group_by(.data$group) %>%
     summarize(n_group = n())
   
   al_df_sum = inner_join(al_df_sum,al_df_group,by = "group") %>%
-    mutate(prop = Freq/n_group) %>%
-    mutate(z = as.factor(z), group = as.factor(group))
+    mutate(prop = .data$Freq/.data$n_group) %>%
+    mutate(z = as.factor(.data$z), group = as.factor(.data$group))
   
-  g <- ggplot(al_df_sum, aes(x = "", y = prop, fill = z)) + 
+  g <- ggplot(al_df_sum, aes(x = "", y = .data$prop, fill = .data$z)) + 
     geom_bar(stat = "identity", width = 1, color = "black") + 
     theme_void() + 
     coord_polar("y",start = 0) + 

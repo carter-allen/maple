@@ -9,7 +9,8 @@
 #' @keywords spatial transcriptomics Bayesian
 #' @import ggplot2
 #' @import shiny
-#' @import plotly
+#' @importFrom plotly renderPlotly plotlyOutput
+#' @importFrom rlang .data
 #' @export
 #' @return A ggplot object or shiny app window
 #' 
@@ -50,7 +51,6 @@ maple_viz <- function(fit,
   }
   else
   {
-    require(shiny)
     shinyApp(
       ui <- fluidPage(
         plotlyOutput("distPlot")

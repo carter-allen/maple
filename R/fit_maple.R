@@ -68,22 +68,8 @@ fit_maple <- function(seurat_obj,
     message("Error: emb should be one of (PCs, HVGs, SVGs) or a matrix of custom embeddings with rows in same order as in seurat_obj@meta.data")
   }
   
-  # compile coordinates
-  L = length(seurat_obj@images)
-  coords = NULL
-  for(l in 1:L)
-  {
-    coords_x_l <- seurat_obj@images[[l]]@coordinates$col
-    coords_y_l <- seurat_obj@images[[l]]@coordinates$row
-    if(l > 1)
-    {
-      coords_x_l <- coords_x_l + max(seurat_obj@images[[l-1]]@coordinates$col) + 50*(l-1)
-    }
-    coords_l <- data.frame(x = coords_x_l,
-                           y = coords_y_l)
-    rownames(coords_l) <- rownames(seurat_obj@images[[l]]@coordinates)
-    coords <- rbind(coords,coords_l)
-  }
+  # offset images
+  coords <- offset_images(seurat_obj)
   
   # check dimensions match
   if(nrow(Y) != nrow(coords))
