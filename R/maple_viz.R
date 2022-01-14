@@ -5,6 +5,7 @@
 #' @param pt.size The size of each cell spot point
 #' @param interactive Logical parameter controlling static or interactive nature of plot
 #' @param shade_uncertainty Logical parameter for shading of cell spots by posterior uncertainty. Must run get_maple_scores() first.
+#' @param feature A user-provided feature (e.g., gene of interest) to visualize over tissue spaces instead of sub-population labels.
 #'
 #' @keywords spatial transcriptomics Bayesian
 #' @import ggplot2
@@ -18,7 +19,8 @@
 maple_viz <- function(fit,
                       pt.size = 1,
                       interactive = FALSE,
-                      shade_uncertainty = FALSE)
+                      shade_uncertainty = FALSE,
+                      feature = NULL)
 {
   options(scipen = 999)
   if(!interactive)
@@ -27,25 +29,54 @@ maple_viz <- function(fit,
     coords_df$Label = factor(fit$z,levels = sort(unique(fit$z)),labels = paste("Sub-Population",sort(unique(fit$z))))
     if(!shade_uncertainty)
     {
-      g = ggplot(data = coords_df, aes(x = .data$x, 
-                                       y = .data$y, 
-                                       color = .data$Label)) + 
-        geom_point(size = pt.size) + 
-        theme_void() + 
-        xlab(NULL) + 
-        ylab(NULL)
+      if(!is.null(feature))
+      {
+        g = ggplot(data = coords_df, aes(x = .data$x, 
+                                         y = .data$y, 
+                                         color = feature)) + 
+          geom_point(size = pt.size) + 
+          theme_void() + 
+          xlab(NULL) + 
+          ylab(NULL)
+      }
+      else
+      {
+        g = ggplot(data = coords_df, aes(x = .data$x, 
+                                         y = .data$y, 
+                                         color = .data$Label)) + 
+          geom_point(size = pt.size) + 
+          theme_void() + 
+          xlab(NULL) + 
+          ylab(NULL)
+      }
+      
     }
     else
     {
-      coords_df$Uncertainty = fit$Uncertainty
-      g = ggplot(data = coords_df, aes(x = .data$x, 
-                                       y = .data$y, 
-                                       color = .data$Label, 
-                                       alpha = .data$Uncertainty)) + 
-        geom_point(size = pt.size) + 
-        theme_void() + 
-        xlab(NULL) + 
-        ylab(NULL)
+      if(!is.null(feature))
+      {
+        coords_df$Uncertainty = fit$Uncertainty
+        g = ggplot(data = coords_df, aes(x = .data$x, 
+                                         y = .data$y, 
+                                         color = feature, 
+                                         alpha = .data$Uncertainty)) + 
+          geom_point(size = pt.size) + 
+          theme_void() + 
+          xlab(NULL) + 
+          ylab(NULL)
+      }
+      else
+      {
+        coords_df$Uncertainty = fit$Uncertainty
+        g = ggplot(data = coords_df, aes(x = .data$x, 
+                                         y = .data$y, 
+                                         color = .data$Label, 
+                                         alpha = .data$Uncertainty)) + 
+          geom_point(size = pt.size) + 
+          theme_void() + 
+          xlab(NULL) + 
+          ylab(NULL)
+      }
     }
     return(g)
   }
@@ -61,25 +92,54 @@ maple_viz <- function(fit,
           coords_df$Label = factor(fit$z,levels = sort(unique(fit$z)),labels = paste("Sub-Population",sort(unique(fit$z))))
           if(!shade_uncertainty)
           {
-            ggplot(data = coords_df, aes(x = .data$x, 
-                                         y = .data$y, 
-                                         color = .data$Label)) + 
-              geom_point(size = pt.size) + 
-              theme_void() + 
-              xlab(NULL) + 
-              ylab(NULL)
+            if(!is.null(feature))
+            {
+              g = ggplot(data = coords_df, aes(x = .data$x, 
+                                               y = .data$y, 
+                                               color = feature)) + 
+                geom_point(size = pt.size) + 
+                theme_void() + 
+                xlab(NULL) + 
+                ylab(NULL)
+            }
+            else
+            {
+              g = ggplot(data = coords_df, aes(x = .data$x, 
+                                               y = .data$y, 
+                                               color = .data$Label)) + 
+                geom_point(size = pt.size) + 
+                theme_void() + 
+                xlab(NULL) + 
+                ylab(NULL)
+            }
+            
           }
           else
           {
-            coords_df$Uncertainty = round(fit$Uncertainty,2)
-            ggplot(data = coords_df, aes(x = .data$x, 
-                                         y = .data$y, 
-                                         color = .data$Label, 
-                                         alpha = .data$Uncertainty)) + 
-              geom_point(size = pt.size) + 
-              theme_void() + 
-              xlab(NULL) + 
-              ylab(NULL)
+            if(!is.null(feature))
+            {
+              coords_df$Uncertainty = fit$Uncertainty
+              g = ggplot(data = coords_df, aes(x = .data$x, 
+                                               y = .data$y, 
+                                               color = feature, 
+                                               alpha = .data$Uncertainty)) + 
+                geom_point(size = pt.size) + 
+                theme_void() + 
+                xlab(NULL) + 
+                ylab(NULL)
+            }
+            else
+            {
+              coords_df$Uncertainty = fit$Uncertainty
+              g = ggplot(data = coords_df, aes(x = .data$x, 
+                                               y = .data$y, 
+                                               color = .data$Label, 
+                                               alpha = .data$Uncertainty)) + 
+                geom_point(size = pt.size) + 
+                theme_void() + 
+                xlab(NULL) + 
+                ylab(NULL)
+            }
           }
         })
       }

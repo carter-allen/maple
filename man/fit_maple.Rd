@@ -11,8 +11,8 @@ fit_maple(
   n_dim = 8,
   covars = NULL,
   r = 3,
-  MCAR = TRUE,
-  CAR = TRUE,
+  MCAR = FALSE,
+  CAR = FALSE,
   smooth = TRUE,
   nsim = 2000,
   burn = 1000,
@@ -36,7 +36,7 @@ fit_maple(
 
 \item{CAR}{Logical. Include univariate CAR random intercepts in multinomial gene expression model?}
 
-\item{smooth}{Logical. Use manual spatial smoothing controled by r parameter?}
+\item{smooth}{Logical. Use manual spatial smoothing controlled by r parameter?}
 
 \item{nsim}{Number of total MCMC iterations to conduct.}
 

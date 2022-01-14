@@ -4,7 +4,13 @@
 \alias{maple_viz}
 \title{Plot tissue architecture labels}
 \usage{
-maple_viz(fit, pt.size = 1, interactive = FALSE, shade_uncertainty = FALSE)
+maple_viz(
+  fit,
+  pt.size = 1,
+  interactive = FALSE,
+  shade_uncertainty = FALSE,
+  feature = NULL
+)
 }
 \arguments{
 \item{fit}{A list returned by fit_maple()}
@@ -14,6 +20,8 @@ maple_viz(fit, pt.size = 1, interactive = FALSE, shade_uncertainty = FALSE)
 \item{interactive}{Logical parameter controlling static or interactive nature of plot}
 
 \item{shade_uncertainty}{Logical parameter for shading of cell spots by posterior uncertainty. Must run get_maple_scores() first.}
+
+\item{feature}{A user-provided feature (e.g., gene of interest) to visualize over tissue spaces instead of sub-population labels.}
 }
 \value{
 A ggplot object or shiny app window

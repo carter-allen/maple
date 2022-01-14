@@ -9,7 +9,7 @@
 #' @param r Spatial smoothing parameter. Should be greater than 0 with larger values enforcing stronger prior spatial association.
 #' @param MCAR Logical. Include multivariate CAR random intercepts in gene expression model?
 #' @param CAR Logical. Include univariate CAR random intercepts in multinomial gene expression model?
-#' @param smooth Logical. Use manual spatial smoothing controled by r parameter?
+#' @param smooth Logical. Use manual spatial smoothing controlled by r parameter?
 #' @param nsim Number of total MCMC iterations to conduct. 
 #' @param burn Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn
 #' @param z_init Initialized cluster allocation vector to aid in MCMC convergence. If NULL z_init will be set using hierarchical clustering. 
@@ -28,8 +28,8 @@ fit_maple <- function(seurat_obj,
                       n_dim = 8,
                       covars = NULL,
                       r = 3,
-                      MCAR = TRUE,
-                      CAR = TRUE,
+                      MCAR = FALSE,
+                      CAR = FALSE,
                       smooth = TRUE,
                       nsim = 2000,
                       burn = 1000,
