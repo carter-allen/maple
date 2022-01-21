@@ -10,27 +10,25 @@ fit_maple(
   emb = "PCs",
   n_dim = 8,
   covars = NULL,
-  r = 3,
   MCAR = FALSE,
   CAR = FALSE,
   smooth = TRUE,
+  r = 3,
   nsim = 2000,
   burn = 1000,
   z_init = NULL
 )
 }
 \arguments{
-\item{seurat_obj}{An integrated Seurat object}
+\item{seurat_obj}{An integrated Seurat object.}
 
 \item{K}{The number of sub-populations to infer. Each should be present in each sample.}
 
-\item{emb}{Either one of "PCs", "HVGs", or "SVGs" OR a matrix with custom embeddings. If the latter, rows should be sorted as in meta data of Seurat object.}
+\item{emb}{The cell spot embedding to use. Either one of "PCs", "scGNN", "harmony", "HVGs", or "SVGs".}
 
-\item{n_dim}{The number of dimensions to use if emb is specified as one of "PCs", "HVGs", or "SVGs". Ignored if emb is a matrix of custom embeddings.}
+\item{n_dim}{The number of dimensions to use.}
 
 \item{covars}{Column names of Seurat meta data to use as covariates. If none specified, will fit a global intercept and sample-indicator model for cell type membership probabilities.}
-
-\item{r}{Spatial smoothing parameter. Should be greater than 0 with larger values enforcing stronger prior spatial association.}
 
 \item{MCAR}{Logical. Include multivariate CAR random intercepts in gene expression model?}
 
@@ -38,9 +36,11 @@ fit_maple(
 
 \item{smooth}{Logical. Use manual spatial smoothing controlled by r parameter?}
 
+\item{r}{Spatial smoothing parameter for if smooth == TRUE. Should be greater than 0 with larger values enforcing stronger prior spatial association.}
+
 \item{nsim}{Number of total MCMC iterations to conduct.}
 
-\item{burn}{Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn}
+\item{burn}{Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn.}
 
 \item{z_init}{Initialized cluster allocation vector to aid in MCMC convergence. If NULL z_init will be set using hierarchical clustering.}
 }

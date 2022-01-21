@@ -1,17 +1,17 @@
 #' Fit Maple multi-sample Bayesian spatial mixture model
 #'
 #' This function allows you to detect sub-populations and explain membership with relevant covariates in multi-sample spatial transcriptomics experiments.
-#' @param seurat_obj An integrated Seurat object 
+#' @param seurat_obj An integrated Seurat object.
 #' @param K The number of sub-populations to infer. Each should be present in each sample.
-#' @param emb Either one of "PCs", "HVGs", or "SVGs" OR a matrix with custom embeddings. If the latter, rows should be sorted as in meta data of Seurat object.
-#' @param n_dim The number of dimensions to use if emb is specified as one of "PCs", "HVGs", or "SVGs". Ignored if emb is a matrix of custom embeddings.
+#' @param emb The cell spot embedding to use. Either one of "PCs", "scGNN", "harmony", "HVGs", or "SVGs".
+#' @param n_dim The number of dimensions to use. 
 #' @param covars Column names of Seurat meta data to use as covariates. If none specified, will fit a global intercept and sample-indicator model for cell type membership probabilities.
-#' @param r Spatial smoothing parameter. Should be greater than 0 with larger values enforcing stronger prior spatial association.
 #' @param MCAR Logical. Include multivariate CAR random intercepts in gene expression model?
 #' @param CAR Logical. Include univariate CAR random intercepts in multinomial gene expression model?
 #' @param smooth Logical. Use manual spatial smoothing controlled by r parameter?
+#' @param r Spatial smoothing parameter for if smooth == TRUE. Should be greater than 0 with larger values enforcing stronger prior spatial association.
 #' @param nsim Number of total MCMC iterations to conduct. 
-#' @param burn Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn
+#' @param burn Number of initial MCMC iterations to discard as burn in. The number of saved iterations is nsim-burn.
 #' @param z_init Initialized cluster allocation vector to aid in MCMC convergence. If NULL z_init will be set using hierarchical clustering. 
 #'
 #' @keywords spatial transcriptomics Bayesian
@@ -27,10 +27,10 @@ fit_maple <- function(seurat_obj,
                       emb = "PCs",
                       n_dim = 8,
                       covars = NULL,
-                      r = 3,
                       MCAR = FALSE,
                       CAR = FALSE,
                       smooth = TRUE,
+                      r = 3,
                       nsim = 2000,
                       burn = 1000,
                       z_init = NULL)
@@ -45,7 +45,35 @@ fit_maple <- function(seurat_obj,
     }
     else
     {
-      message("Error: No PCA reductions found in the supplied Seurat object. Please add PCA embeddings to seurat_obj$reductions$pca@cell.embeddings.")
+      message("Error: No PCA reductions found in the supplied Seurat object. Please add PCA embeddings to seurat_obj$reductions$pca@cell.embeddings. See Seurat::RunPCA documentation for more details.")
+      return(NULL)
+    }
+  }
+  else if(emb == "scGNN")
+  {
+    # check harmony reductions are present
+    if(!is.null(seurat_obj@reductions$scGNN))
+    {
+      Y <- seurat_obj@reductions$scGNN@cell.embeddings[,1:n_dim]
+      rownames(Y) <- rownames(seurat_obj@reductions$scGNN@cell.embeddings)
+    }
+    else
+    {
+      message("Error: No scGNN reductions found in the supplied Seurat object. Please add scGNN embeddings to seurat_obj$reductions$scGNN@cell.embeddings. See Seurat::CreateDimReducObject() documentation for more details.")
+      return(NULL)
+    }
+  }
+  else if(emb == "harmony")
+  {
+    # check harmony reductions are present
+    if(!is.null(seurat_obj@reductions$harmony))
+    {
+      Y <- seurat_obj@reductions$harmony@cell.embeddings[,1:n_dim]
+      rownames(Y) <- rownames(seurat_obj@reductions$harmony@cell.embeddings)
+    }
+    else
+    {
+      message("Error: No harmony reductions found in the supplied Seurat object. Please add harmony embeddings to seurat_obj$reductions$harmony@cell.embeddings. See Seurat::CreateDimReducObject() documentation for more details.")
       return(NULL)
     }
   }
@@ -59,13 +87,9 @@ fit_maple <- function(seurat_obj,
     svgs <- SpatiallyVariableFeatures(seurat_obj)[1:n_dim]
     Y <- t(seurat_obj@assays$SCT@scale.data[svgs,])
   }
-  else if(is.matrix(emb))
-  {
-    Y <- emb
-  }
   else
   {
-    message("Error: emb should be one of (PCs, HVGs, SVGs) or a matrix of custom embeddings with rows in same order as in seurat_obj@meta.data")
+    message("Error: emb should be one of (PCs, scGNN, harmony, HVGs, or SVGs) or a matrix of custom embeddings with rows in same order as in seurat_obj@meta.data")
   }
   
   # offset images
