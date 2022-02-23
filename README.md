@@ -12,16 +12,6 @@
 devtools::install_github("carter-allen/maple")
 ```
 
-# Requirements
-
-`maple` depends on our existing package `spruce`, which contains a suite of functions for single sample spatial transcriptomics data analysis. `spruce` can be installed via:
-
-```
-devtools::install_github("carter-allen/spruce")
-```
-
-`maple` also depends heavily on `Seurat` for data pre-processing and visualization.
-
 # Vignettes
 
 - [Multi-Sample Anterior Mouse Brain](https://carter-allen.github.io/stxBrain_multi_maple.html)
