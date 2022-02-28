@@ -14,7 +14,19 @@
 #' @importFrom rlang .data
 #' @export
 #' @return A ggplot object or shiny app window
-#' 
+#' @examples 
+#' \dontrun{
+#' brain1 <- LoadData("stxBrain", type = "anterior1")
+#' brain2 <- LoadData("stxBrain", type = "anterior2")
+#' brain1 <- SCTransform(brain1, assay = "Spatial", verbose = FALSE)
+#' brain2 <- SCTransform(brain2, assay = "Spatial", verbose = FALSE)
+#' brain <- merge(brain1,brain2)
+#' DefaultAssay(brain) <- "SCT"
+#' VariableFeatures(brain) <- c(VariableFeatures(brain1),VariableFeatures(brain2))
+#' brain <- RunPCA(brain)
+#' brain_fit_PCs <- fit_maple(brain,K = 6,emb = "PCs")
+#' maple_viz(brain_fit_PCs)
+#' }
 
 maple_viz <- function(fit,
                       pt.size = 1,
